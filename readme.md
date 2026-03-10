@@ -1,6 +1,6 @@
 # wake_wol
 
-Wake On LAN automation for **on-premise spelling AI inference servers** (e.g. Ollama, LM Studio). The service runs on the machine that sends requests to the inference server (typically a client or a web frontend host). It sniffs outgoing TCP connections to the inference server; when it sees traffic to a configured target, it checks whether the server is responding to ping and, if not, sends a Wake-on-LAN magic packet to bring it up.
+Wake On LAN automation for **on-premise AI inference servers** (e.g. Ollama, LM Studio). The service runs on the machine that sends requests to the inference server (typically a client or a web frontend host). It sniffs outgoing TCP connections to the inference server; when it sees traffic to a configured target, it checks whether the server is responding to ping and, if not, sends a Wake-on-LAN magic packet to bring it up.
 
 ## Backstory
 
