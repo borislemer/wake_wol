@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local config (uncomment if devices.txt is machine-specific)
+# devices.txt
