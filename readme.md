@@ -2,11 +2,15 @@
 
 Wake On LAN automation for **on-premise spelling AI inference servers** (e.g. Ollama, LM Studio). The service runs on the machine that sends requests to the inference server (typically a client or a web frontend host). It sniffs outgoing TCP connections to the inference server; when it sees traffic to a configured target, it checks whether the server is responding to ping and, if not, sends a Wake-on-LAN magic packet to bring it up.
 
+## Backstory
+
+This project was originally created to allow [Open WebUI](https://github.com/open-webui/open-webui) to wake an on-premise inference server on demand. The idea is that Open WebUI can keep running on a small always-on machine, while the heavier GPU box with the actual models can stay powered off or suspended. When Open WebUI (or anything else) starts making HTTP requests toward the inference server, `wake_wol.py` sees the outbound connection attempts and triggers Wake-on-LAN if the server is not yet responding to ping.
+
 ## How it works
 
 - **Passive sniffing**: `wake_wol.py` listens on one or more network interfaces for outbound TCP SYN packets to configured inference server IP:port pairs (using BPF and pcap).
 - **Liveness check**: Before sending WOL, it pings the target host. Only if the host does not respond to ping does it send the magic packet (avoids unnecessary WOL when the server is already up).
-- **Cooldown**: Each target has a configurable cooldown (default 30 minutes) so that repeated failed connection attempts do not flood WOL packets.
+- **Cooldown**: Each target has a configurable cooldown (default 5 minutes) that starts only after a WoL packet has been sent to an unreachable server, so repeated failed connection attempts do not flood WOL packets.
 
 ## Use case
 
@@ -51,6 +55,6 @@ To add more machines later, edit `/opt/wake/devices.txt` or run `sudo /opt/wake/
 
 ## Requirements
 
-- Python 3 with `pcapy-ng` (see [prereqs.txt](prereqs.txt))
+- Python 3 with `python3-pcapy` and `iputils-ping` (see [prereqs.txt](prereqs.txt))
 - Root (or CAP_NET_RAW/CAP_NET_ADMIN) to capture packets
 - Wake-on-LAN enabled on the inference server NIC and BIOS

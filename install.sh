@@ -36,17 +36,49 @@ if [[ "$(id -u)" -ne 0 ]]; then
     exit 1
 fi
 
+echo "Checking prerequisites (python3, python3-pcapy, iputils-ping)..."
+
+APT_UPDATED=0
+ensure_apt_updated() {
+    if [[ "$APT_UPDATED" -eq 0 ]]; then
+        apt-get update
+        APT_UPDATED=1
+    fi
+}
+
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "  python3 not found, installing via apt..."
+    ensure_apt_updated
+    apt-get install -y python3
+fi
+
+if ! python3 -c "import pcapy" >/dev/null 2>&1; then
+    echo "  python3-pcapy (pcap bindings) not found, installing via apt..."
+    ensure_apt_updated
+    apt-get install -y python3-pcapy
+fi
+
+if ! command -v ping >/dev/null 2>&1; then
+    echo "  iputils-ping not found, installing via apt..."
+    ensure_apt_updated
+    apt-get install -y iputils-ping
+fi
+
 echo "Installing wake_wol to ${INSTALL_DIR}"
 
 mkdir -p "${INSTALL_DIR}"
 
-# Copy service script and optional reference
-cp -p "${SCRIPT_DIR}/wake_wol.py" "${INSTALL_DIR}/"
-if [[ -f "${SCRIPT_DIR}/systemd.example" ]]; then
-    cp -p "${SCRIPT_DIR}/systemd.example" "${INSTALL_DIR}/"
-fi
-if [[ -f "${SCRIPT_DIR}/prereqs.txt" ]]; then
-    cp -p "${SCRIPT_DIR}/prereqs.txt" "${INSTALL_DIR}/"
+# Copy service script and optional reference (skip if already installing in-place)
+if [[ "$(realpath "${SCRIPT_DIR}")" != "$(realpath "${INSTALL_DIR}")" ]]; then
+    cp -p "${SCRIPT_DIR}/wake_wol.py" "${INSTALL_DIR}/"
+    if [[ -f "${SCRIPT_DIR}/systemd.example" ]]; then
+        cp -p "${SCRIPT_DIR}/systemd.example" "${INSTALL_DIR}/"
+    fi
+    if [[ -f "${SCRIPT_DIR}/prereqs.txt" ]]; then
+        cp -p "${SCRIPT_DIR}/prereqs.txt" "${INSTALL_DIR}/"
+    fi
+else
+    echo "Installer is already running from ${INSTALL_DIR}, skipping file copy."
 fi
 
 # Create devices.txt if missing
@@ -71,6 +103,9 @@ ExecStart=/usr/bin/python3 ${INSTALL_DIR}/wake_wol.py
 Restart=always
 RestartSec=5
 User=root
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=inherit
 
 [Install]
 WantedBy=multi-user.target

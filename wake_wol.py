@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Tuple
 import pcapy
 
 
-DEFAULT_COOLDOWN_SEC = 30 * 60
+DEFAULT_COOLDOWN_SEC = 5 * 60
 DEFAULT_PING_TIMEOUT_SEC = 1
 DEFAULT_PING_COUNT = 1
 DEFAULT_DEVICE_FILE = "devices.txt"

@@ -5,10 +5,14 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+WorkingDirectory=/opt/wake
 ExecStart=/usr/bin/python3 /opt/wake/wake_wol.py
 Restart=always
 RestartSec=5
 User=root
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=inherit
 
 [Install]
 WantedBy=multi-user.target
